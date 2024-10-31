@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState, forwardRef, useEffect, useCallback } from 'react';
 import { StyleSheet, View, TextInput, Text, TouchableOpacity } from 'react-native';
 import * as yup from 'yup';
 import { Button } from 'react-native-paper';
@@ -6,28 +6,31 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { useAppSelector } from '@/store/hooks';
 import { isApiError } from '@/helpers/auth/apiError';
-import { useUserUpdateMutation } from '@/module/profile/api/user';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUpdateBotMutation } from '@/module/profile/api/user';
 
 type Inputs = {
-    login: string;
-    username: string;
-    email: string;
-    password: string;
+    botName: string;
+    prompt: string;
+    description: string;
     hideModal?: () => void;
 };
 
-const ProfileModal = forwardRef(({ hideModal }: any, ref) => {
-    const [error, setError] = useState('');
-    const [updateUser] = useUserUpdateMutation();
-    const user = useAppSelector((state) => state.user);
+const EditBotModal = forwardRef(({ hideModal }: any, ref) => {
+    const [error, setError] = useState('')
 
     const schema = yup.object().shape({
-        login: yup.string().required(),
-        username: yup.string().required(),
-        email: yup.string().required(),
-        password: yup.string(),
+        botName: yup.string().required(),
+        prompt: yup.string().required(),
+        description: yup.string().required(),
     });
+
+    const [updateBot] = useUpdateBotMutation();
+
+    const [activePublicBot, setActivePublicBot] = useState(null);
+
+    const bot = useAppSelector((state) => state.bots.activeBot);
 
     const {
         control,
@@ -38,22 +41,21 @@ const ProfileModal = forwardRef(({ hideModal }: any, ref) => {
     } = useForm<Inputs>({
         resolver: yupResolver(schema),
         defaultValues: {
-            login: user?.login || '',
-            username: user?.username || '',
-            email: user?.email || '',
-            password: '',
+            botName: bot?.botname || '',
+            description: bot?.description || '',
+            prompt: bot?.prompt || '',
         },
     });
 
     const onSubmit: SubmitHandler<Inputs> = (data) => {
         try {
+            console.log('1')
             const formData = new FormData();
-            formData.append('login', data.login);
-            formData.append('email', data.email);
-            formData.append('password', data.password);
-            formData.append('username', data.username);
-            const response = updateUser(formData).unwrap();
-            reset();
+            formData.append("botname", data.botName);
+            formData.append("prompt", data.prompt);
+            formData.append("description", data.description);
+            formData.append("BotId", String(bot?.id));
+            updateBot(formData)
             hideModal()
         } catch (error) {
             if (isApiError(error)) {
@@ -68,75 +70,57 @@ const ProfileModal = forwardRef(({ hideModal }: any, ref) => {
         <View style={styles.container}>
             <View style={styles.iconContainer}>
                 <TouchableOpacity onPress={hideModal}>
-                    <EvilIcons name="close" size={30} color='#F5F5F5' />
+                    <EvilIcons name="close" size={30} color="#F5F5F5" />
                 </TouchableOpacity>
             </View>
-            <Text style={styles.updateText}>Update your profile</Text>
-            <Text style={styles.title}>Login</Text>
+            <Text style={styles.updateText}>Edit Manager</Text>
+            <Text style={styles.title}>Name</Text>
             <Controller
                 control={control}
-                name="login"
+                name="botName"
                 render={({ field: { onChange, value } }) => (
                     <TextInput
                         style={styles.input}
-                        placeholder="Login"
+                        placeholder="Name"
                         placeholderTextColor="#888"
                         onChangeText={onChange}
                         value={value}
                     />
                 )}
             />
-            {errors.login && <Text style={styles.error}>{errors.login.message}</Text>}
+            {errors.botName && <Text style={styles.error}>{errors.botName.message}</Text>}
 
-            <Text style={styles.title}>Username</Text>
+            <Text style={styles.title}>Prompt</Text>
             <Controller
                 control={control}
-                name="username"
+                name="prompt"
                 render={({ field: { onChange, value } }) => (
                     <TextInput
                         style={styles.input}
-                        placeholder="Username"
+                        placeholder="Prompt"
                         placeholderTextColor="#888"
                         onChangeText={onChange}
                         value={value}
                     />
                 )}
             />
-            {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
+            {errors.prompt && <Text style={styles.error}>{errors.prompt.message}</Text>}
 
-            <Text style={styles.title}>Email</Text>
+            <Text style={styles.title}>Desciprition</Text>
             <Controller
                 control={control}
-                name="email"
+                name="description"
                 render={({ field: { onChange, value } }) => (
                     <TextInput
                         style={styles.input}
-                        placeholder="Email"
+                        placeholder="Description"
                         placeholderTextColor="#888"
                         onChangeText={onChange}
                         value={value}
                     />
                 )}
             />
-            {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
-
-            <Text style={styles.title}>Password</Text>
-            <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, value } }) => (
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        secureTextEntry
-                        placeholderTextColor="#888"
-                        onChangeText={onChange}
-                        value={value}
-                    />
-                )}
-            />
-            {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
-
+            {errors.description && <Text style={styles.error}>{errors.description.message}</Text>}
             <Button
                 mode="contained"
                 buttonColor='#fff'
@@ -197,4 +181,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default ProfileModal;
+export default EditBotModal;

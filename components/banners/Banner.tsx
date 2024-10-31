@@ -1,13 +1,16 @@
-import { View, Image, Text, StyleSheet } from 'react-native'
+import { View, Image, Text, StyleSheet, Pressable } from 'react-native'
 import React from 'react'
 import { formatText } from '@/helpers/formatText'
-
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 type Props = {
+  id: number
   img: string
   author: string
-  name: string
+  botname: string
   description: string
-  likes?: number
+  prompt: string
+  showBuilderModal: () => void
 }
 
 const styles = StyleSheet.create({
@@ -21,7 +24,7 @@ const styles = StyleSheet.create({
     height: 146,
   },
   image: {
-    width: 90,
+    width: 114,
     height: 114,
     borderRadius: 8
   },
@@ -45,17 +48,31 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     color: '#fff',
+  },
+  btnContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end'
   }
 })
 
-export default function Banner({ img, author, name, description }: Props) {
+export default function Banner({ id, img, author, botname, description, prompt, showBuilderModal }: Props) {
+  const ha = () => {
+    AsyncStorage.setItem('activePublicBot', JSON.stringify({ id, botname, description, prompt }));
+    showBuilderModal()
+  };
   return (
     <View style={styles.container}>
       <Image source={{ uri: img }} style={styles.image} />
       <View style={styles.textContainer}>
-        <Text style={styles.nameText}>{name}</Text>
+        <Text style={styles.nameText}>{botname}</Text>
         <Text style={styles.authorText}>Автор: {author}</Text>
-        <Text style={styles.descriptionText}>{formatText(description, 150)}</Text>
+        <Text style={styles.descriptionText}>{formatText(description, 180)}</Text>
+      </View>
+      <View style={styles.btnContainer}>
+        <Pressable onPress={ha}>
+          <MaterialCommunityIcons name="connection" size={20} color="#ccc" />
+        </Pressable>
       </View>
     </View>
   )

@@ -22,6 +22,7 @@ const userApi = api.injectEndpoints({
                 url: '/Bot/getPrivateBots',
                 method: 'GET',
             }),
+            providesTags: ['BotUpdate'],
         }),
         updateBot: build.mutation<any, any>({
             query: (data) => ({

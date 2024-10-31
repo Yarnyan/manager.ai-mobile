@@ -12,15 +12,18 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "jsEngine": "hermes",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "managerAi"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.yarnyan.gptMobile"
+      "package": "com.yarnyan.gptMobile",
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",

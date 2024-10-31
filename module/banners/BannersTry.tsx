@@ -1,15 +1,18 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Banner from '@/components/banners/Banner';
 import { banners } from './data/data';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useAppSelector } from '@/store/hooks';
 
 export default function BannersTry() {
   const carouselRef = useRef(null);
-  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const screenWidth = Dimensions.get('window').width;
-  console.log(screenWidth);
+
+
+  const banners = useAppSelector((state) => state.bots.allBots);
   const handleNext = () => {
     if (currentIndex < banners.length - 1) {
       carouselRef.current?.next();
@@ -27,12 +30,12 @@ export default function BannersTry() {
       <Text style={styles.text}>Try these</Text>
       <Carousel
         ref={carouselRef}
-        data={banners}
-        renderItem={({ item }) => (
+        data={banners?.slice(1,3)}
+        renderItem={({ item }: any) => (
           <Banner 
-            img={item.img} 
-            author={item.author} 
-            name={item.name} 
+            img={'https://img.freepik.com/premium-photo/funny-little-avatar-helpful-bot-assistant_969393-1429.jpg'} 
+            author={'@Root'} 
+            name={item.botname} 
             description={item.description} 
           />
         )}
@@ -60,7 +63,7 @@ export default function BannersTry() {
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
-    marginTop: 40,
+    marginTop: 20,
     padding: 10,
     flex: 1,
     width: '100%',

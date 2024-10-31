@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import AvatarContainer from '@/components/ui/avatar/AvatarContainer';
-import { View, Text, Pressable, Modal } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Snackbar, Portal, PaperProvider } from 'react-native-paper';
 import BotProfile from './components/bot';
@@ -10,14 +9,15 @@ import { useAppDispatch } from '@/store/hooks';
 import { addUser } from '@/store/features/user/userSlice';
 import { Bot } from './entity/bot';
 import { useFocusEffect } from 'expo-router';
-import { styleModal } from '@/components/modal/modal';
-import ProfileModal from '@/components/modal/profile/profileModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = {
   showModal: () => void;
+  showEditModal: () => void;
+  showTelegramModal: () => void;
 }
 
-export default function UserProfile({showModal}) {
+export default function UserProfile({showModal, showEditModal, showTelegramModal}: any) {
   const [visible, setVisible] = useState(false);
 
   const onToggleSnackBar = () => setVisible(!visible);
@@ -31,6 +31,7 @@ export default function UserProfile({showModal}) {
       getUser(null).then((response) => {
         if (response.data) {
           dispatch(addUser(response.data?.detail));
+          AsyncStorage.setItem('user', JSON.stringify(response.data.detail))
         }
       });
       getBots(null);
@@ -39,11 +40,6 @@ export default function UserProfile({showModal}) {
     }, [])
   );
 
-  // const [visibleModal, setVisibleModal] = useState(false);
-
-  // const showModal = () => setVisibleModal(true);
-  // const hideModal = () => setVisibleModal(false);
-
   return (
     <PaperProvider>
       <View style={styles.container}>
@@ -51,7 +47,7 @@ export default function UserProfile({showModal}) {
           <Text style={styles.welcomeText}>Profile</Text>
           <View style={styles.items}>
             <View style={styles.avatar}>
-              <AvatarContainer image='./assets/images/user.jpg' size={140} />
+              <Image source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png'}} style={styles.image} />
               <Text style={styles.userText}>{user.data?.detail?.username}</Text>
             </View>
             <View style={styles.containerBtn}>
@@ -77,17 +73,14 @@ export default function UserProfile({showModal}) {
                     prompt={item.prompt}
                     id={item.id}
                     type={item.type}
+                    showEditModal={showEditModal}
+                    showTelegramModal={showTelegramModal}
                   />
                 )
               })}
             </View>
           </View>
         </ScrollView>
-        {/* <Portal>
-            <Modal visible={visibleModal} onDismiss={hideModal} style={styleModal} contentContainerStyle={styleModal}>
-              <ProfileModal hideModal={hideModal}/>
-            </Modal>
-          </Portal> */}
         <Portal>
           <Snackbar
             visible={visible}
@@ -107,6 +100,12 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 30,
     flex: 1,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#303136',
   },
   welcomeText: {
     fontSize: 20,

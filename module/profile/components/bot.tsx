@@ -1,37 +1,78 @@
 import React from 'react';
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { View, Text, Image, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { formatText } from '@/helpers/formatText';
 import { useAppDispatch } from '@/store/hooks';
+import { addActiveBot } from '@/store/features/bots/botsSlice';
+import { setActivePublicBot } from '@/store/features/bots/botsSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+import { useRemoveBotMutation } from '../api/bot';
 type Props = {
   image: string
   botname: string
   description: string
   id: number
   prompt: string
-  type: string
+  type: any
+  showEditModal: () => void
+  showTelegramModal: () => void
 };
 
-export default function BotProfile({ image, botname, description }: Props) {
-  const dispatch = useAppDispatch()
-  console.log(botname)
+export default function BotProfile({ image, botname, description, id, prompt, type, showEditModal, showTelegramModal }: Props) {
+
+  const dispatch = useAppDispatch();
+
+  const [deleteBot] = useRemoveBotMutation();
+
+  const ha = () => {
+    dispatch(setActivePublicBot({ id, botname, description }));
+    router.push('/chat')
+    AsyncStorage.setItem('activePublicBot', JSON.stringify({ id, botname, description }));
+  };
+
+  const handleClick = () => {
+    dispatch(addActiveBot({ botname, description, id, prompt, type }));
+    AsyncStorage.setItem('activePublicBot', JSON.stringify({ id, botname, description, prompt }));
+    showEditModal()
+  };
+
+  const handleTelegram = () => {
+    AsyncStorage.setItem('activePublicBot', JSON.stringify({ id, botname, description }));
+    showTelegramModal()
+    console.log('1')
+  };
+
+  const removeBot = () => {
+    const formdata = new FormData();
+    formdata.append('BotId', String(id));
+    try {
+      deleteBot(formdata).unwrap();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <Image source={require('../../../assets/images/favicon.png')} style={styles.image} />
-        <View style={styles.textContainer}>
+        <Image source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png'}} style={styles.image} />
+        <TouchableOpacity onPress={ha} style={styles.textContainer}>
           <Text style={styles.name}>{botname}</Text>
           <Text style={styles.description}>
             {formatText(description, 50)}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
       <View style={styles.iconContainer}>
-        <Pressable onPress={() => console.log('Edit pressed')}>
+        <Pressable onPress={handleClick} style={styles.icon}> 
           <MaterialIcons name="edit" size={20} color="#ccc" />
         </Pressable>
-        <Pressable onPress={() => console.log('Telegram pressed')} style={styles.telegramButton}>
-          <AntDesign name="sharealt" size={20} color="#ccc" />
+        <Pressable onPress={handleTelegram} style={styles.icon}>
+          <FontAwesome5 name="telegram-plane" size={20} color="#ccc" />
+        </Pressable>
+        <Pressable onPress={removeBot} style={styles.icon}>
+          <MaterialIcons name="delete" size={20} color="#ccc" />
         </Pressable>
       </View>
     </View>
@@ -77,7 +118,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  telegramButton: {
-    marginTop: 16,
+  icon: {
+    marginTop: 4,
+    padding: 4,
   },
 });

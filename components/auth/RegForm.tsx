@@ -21,7 +21,7 @@ const RegForm = () => {
     const schema = yup.object().shape({
         login: yup.string().required('Login is required'),
         email: yup.string().email('Invalid email').required('Email is required'),
-        password: yup.string().min(8, 'Password must be at least 8 characters').max(32, 'Password cannot exceed 32 characters').required('Password is required'),
+        password: yup.string().required('Password is required'),
     });
 
     const {
@@ -47,7 +47,7 @@ const RegForm = () => {
             if (isApiError(error)) {
                 setError(error.data?.message);
             } else {
-                setError('Error signing in');
+                setError(error);
             }
         }
     };

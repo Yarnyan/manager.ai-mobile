@@ -10,7 +10,7 @@ const Create = () => {
             <Text style={styles.description}>
                 Can't get along with the characters? Create your own! Customize parameters such as his voice, conversation start, tone and much more!
             </Text>
-            <Link href="/login" style={styles.button}>
+            <Link href="/chat" style={styles.button}>
                 <View style={styles.buttonContent}>
                     <Ionicons name="star-outline" size={20} color="#000000" />
                     <Text style={styles.buttonText}>Create manager</Text>

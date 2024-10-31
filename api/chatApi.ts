@@ -1,12 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { apiUrl } from './routes/routes';
+import { chatApiUrl } from './routes/routes';
 import { baseQueryWithReauth } from './customBaseQuery/customBaseQuery';
 
-export const api = createApi({
-  reducerPath: 'api',
-  baseQuery: baseQueryWithReauth(apiUrl),
+export const chatApi = createApi({
+  reducerPath: 'chatApi',
+  baseQuery: baseQueryWithReauth(chatApiUrl),
   tagTypes: ['Update', 'BotUpdate', 'Auth', 'Create'],
   endpoints: () => ({}),
 });
 
-export const { } = api;
+export const { } = chatApi;

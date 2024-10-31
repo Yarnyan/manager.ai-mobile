@@ -2,21 +2,29 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { TextInput, Button, ActivityIndicator } from 'react-native-paper';
 import { TextArea } from 'native-base';
-
+import { useCreateBotMutation } from '../banners/api/banners';
 const Form = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
+    const [createBot] = useCreateBotMutation();
     const handleSubmit = () => {
         setLoading(true);
-        console.log('Name:', name);
-        console.log('Description:', description);
-        console.log('Prompt:', prompt);
-
-        setTimeout(() => {
+        const formData = new FormData();
+        formData.append('botName', name);
+        formData.append('botDescription', description);
+        formData.append('BotPrompt', prompt);
+        try {
+            const response = createBot(formData).unwrap();
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setName('');
+            setDescription('');
+            setPrompt('');
             setLoading(false);
-        }, 1000);
+        }
     };
     return (
         <View style={styles.container}>
@@ -132,7 +140,7 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 10,
-        height: 46,
+        height: 42,
         width: '100%',
     }
 })

@@ -11,7 +11,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Inputs = {
     login: string;
-    email: string;
     password: string;
 };
 
@@ -22,8 +21,7 @@ const LoginForm = () => {
     const router = useRouter();
     const schema = yup.object().shape({
         login: yup.string().required('Login is required'),
-        email: yup.string().email('Invalid email').required('Email is required'),
-        password: yup.string().min(8, 'Password must be at least 8 characters').max(32, 'Password cannot exceed 32 characters').required('Password is required'),
+        password: yup.string().required('Password is required'),
     });
 
     const {
@@ -38,7 +36,6 @@ const LoginForm = () => {
     const onSubmit = async (data: Inputs) => {
         const formData = new FormData();
         formData.append('login', data.login);
-        formData.append('email', data.email);
         formData.append('password', data.password);
 
         try {
@@ -50,7 +47,7 @@ const LoginForm = () => {
             if (isApiError(error)) {
                 setError(error.data.message);
             } else {
-                setError('Error signing in');
+                setError('Invalid' + error);
             }
         }
     };
@@ -74,21 +71,6 @@ const LoginForm = () => {
                 )}
             />
             {errors.login && <Text style={styles.error}>{errors.login.message}</Text>}
-
-            <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, value } }) => (
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Email"
-                        placeholderTextColor="#888"
-                        value={value}
-                        onChangeText={onChange}
-                    />
-                )}
-            />
-            {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
             <Controller
                 control={control}

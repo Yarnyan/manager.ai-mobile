@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { StyleSheet, Platform, ScrollView } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
+import { View } from 'react-native';
 import Header from '@/module/header/Header';
 import Banners from '@/module/banners/Banners';
 import BannersRec from '@/module/banners/BannersRec';
@@ -16,7 +16,7 @@ export default function HomeScreen() {
   const hideModal = () => setVisibleModal(false);
 
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView>
         <Header />
         <Banners showBuilderModal={showModal} />
@@ -27,7 +27,7 @@ export default function HomeScreen() {
           <BuilderModal onCloseBuilderModal={hideModal} />
         </Modal>
       </ScrollView>
-    </ThemedView>
+    </View>
   );
 }
 

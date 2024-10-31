@@ -13,6 +13,7 @@ const ChatContainer = () => {
   const chatRef = useRef<ScrollView | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const connectionRef = useRef<HubConnection | null>(null);
+  const [activeChatId, setActiveChatId] = useState<number | null>(null);
 
   const [m, setM] = useState('');
 
@@ -47,6 +48,7 @@ const ChatContainer = () => {
         const chatsData = res?.data || [];
         const matchedChat = chatsData.find((chat: any) => chat.botId === bot?.id);
         if (matchedChat) {
+          setActiveChatId(matchedChat.id);
           getMessages(matchedChat.id).then((data) => {
             setMessages(data?.data?.detail || []);
           }).catch((error) => {
@@ -70,19 +72,19 @@ const ChatContainer = () => {
           })
           .configureLogging(LogLevel.Information)
           .build();
-  
-          connection.on('ReceiveMessage', (message: string, chatId: number, isFromUser: boolean) => {
-            setMessages((prevMessages: any) => [
-              ...prevMessages,
-              {
-                text: message,
-                chatId: chatId,
-                isFromUser: isFromUser,
-                name: isFromUser ? 'You' : bot?.botname,
-              }
-            ]);
-          });
-  
+
+        connection.on('ReceiveMessage', (message: string, chatId: number, isFromUser: boolean) => {
+          setMessages((prevMessages: any) => [
+            ...prevMessages,
+            {
+              text: message,
+              chatId: chatId,
+              isFromUser: isFromUser,
+              name: isFromUser ? 'You' : bot?.botname,
+            }
+          ]);
+        });
+
         connection.start()
           .then(() => console.log('Соединение установлено'))
           .catch((error) => console.error('Ошибка при установлении соединения:', error));
@@ -90,7 +92,7 @@ const ChatContainer = () => {
         console.log('Токен доступа не найден, соединение не может быть установлено');
       }
     };
-  
+
     fetchStorageData();
   }, []);
 
@@ -109,12 +111,14 @@ const ChatContainer = () => {
       text: message,
       name: 'You',
       isFromUser: true,
+      chatId: activeChatId
     };
 
     try {
       if (m) {
         sendMessage(formData).unwrap();
         setMessages((prevMessages) => [...prevMessages, newMessage]);
+        console.log(messages)
         setM('');
       }
     } catch (error) {
@@ -126,16 +130,18 @@ const ChatContainer = () => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} ref={chatRef}>
         <View style={styles.avatarContainer}>
-          <Image source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png'}} style={styles.image} />
+          <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.image} />
           <Text style={styles.botName}>{bot?.botname}</Text>
           <Text style={styles.author}>Author: @Root</Text>
         </View>
         <View style={styles.messagesContainer}>
-          {messages.length > 0 && messages.map((item, index) => (
-            <View key={index} style={item.isFromUser ? styles.messageUser : styles.messageBot}>
-              <Message isFromUser={item.isFromUser} name={item.name} text={item.text} />
-            </View>
-          ))}
+          {messages && messages
+            .filter((msg) => msg.chatId === activeChatId)
+            .map((item, index) => (
+              <View key={index} style={item.isFromUser ? styles.isFromUser : styles.DontIsFromUser}>
+                <Message isFromUser={item.isFromUser} name={item.name} text={item.text} />
+              </View>
+            ))}
         </View>
       </ScrollView>
       <View style={styles.inputContainer}>
@@ -160,6 +166,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  isFromUser: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'flex-start'
+  },
+  DontIsFromUser: {
+    width: '100%',
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end'
   },
   image: {
     width: 100,

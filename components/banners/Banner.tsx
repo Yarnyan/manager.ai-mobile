@@ -1,5 +1,5 @@
 import { View, Image, Text, StyleSheet, Pressable } from 'react-native'
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { formatText } from '@/helpers/formatText'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -57,6 +57,17 @@ const styles = StyleSheet.create({
 })
 
 export default function Banner({ id, img, author, botname, description, prompt, showBuilderModal }: Props) {
+
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const storedToken = await AsyncStorage.getItem('token');
+      setToken(storedToken);
+    };
+    
+    fetchToken();
+  }, []);
   const ha = () => {
     AsyncStorage.setItem('activePublicBot', JSON.stringify({ id, botname, description, prompt }));
     showBuilderModal()
@@ -70,9 +81,11 @@ export default function Banner({ id, img, author, botname, description, prompt, 
         <Text style={styles.descriptionText}>{formatText(description, 180)}</Text>
       </View>
       <View style={styles.btnContainer}>
-        <Pressable onPress={ha}>
-          <MaterialCommunityIcons name="connection" size={20} color="#ccc" />
-        </Pressable>
+        {token && (
+          <Pressable onPress={ha}>
+            <MaterialCommunityIcons name="connection" size={20} color="#ccc" />
+          </Pressable>
+        )}
       </View>
     </View>
   )

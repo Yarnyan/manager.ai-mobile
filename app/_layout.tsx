@@ -31,22 +31,10 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
       const timer = setTimeout(() => {
         setShowSplash(false);
-      }, 1500); // 1.5 секунды
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [loaded]);
-
-  useEffect(() => {
-    if (!showSplash) {
-      AsyncStorage.getItem('token').then((token) => {
-        if (token) {
-          router.push('/');
-        } else {
-          router.push('/login');
-        }
-      });
-    }
-  }, [showSplash]);
 
   useEffect(() => {
     if (showSplash) {
@@ -76,7 +64,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={DarkTheme}>
       <NativeBaseProvider>
         <StoreProvider>
           <Stack>

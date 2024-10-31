@@ -1,36 +1,48 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Colors } from '@/constants/Colors';
+import React, { useEffect } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
-
-import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, useFocusEffect } from 'expo-router';
 
 function CustomTabBarIcon({ name, type, color }) {
-  const IconComponent = type === 'Feather' ? Feather :
-                        type === 'AntDesign' ? AntDesign :
-                        Ionicons; 
-
+  const IconComponent = type === 'Feather' ? Feather : type === 'AntDesign' ? AntDesign : Ionicons;
   return <IconComponent name={name} size={20} style={{ marginBottom: -3 }} color={color} />;
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const router = useRouter();
+
+  const checkAuth = async (routeName) => {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      router.replace('/login');
+    } else {
+      router.replace(routeName);
+    }
+  };
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#fff',
         headerShown: false,
-      }}>
+      }}
+    >
       <Tabs.Screen
-        name="create"
+        name="tarrifs"
         options={{
-          title: 'Create',
+          title: 'Tarrifs',
           tabBarIcon: ({ color, focused }) => (
-            <CustomTabBarIcon name={focused ? 'edit-2' : 'edit-2'} type="Feather" color={color} />
+            <CustomTabBarIcon name="creditcard" type="AntDesign" color={color} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            checkAuth('tarrifs');
+          },
         }}
       />
       <Tabs.Screen
@@ -47,8 +59,14 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <CustomTabBarIcon name={focused ? 'user' : 'user'} type="AntDesign" color={color} />
+            <CustomTabBarIcon name="user" type="AntDesign" color={color} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            checkAuth('profile');
+          },
         }}
       />
     </Tabs>

@@ -3,12 +3,15 @@ import { StyleSheet, View, Text } from 'react-native';
 import { TextInput, Button, ActivityIndicator } from 'react-native-paper';
 import { TextArea } from 'native-base';
 import { useCreateBotMutation } from '../banners/api/banners';
+import { useRouter } from 'expo-router';
 const Form = () => {
+    const router = useRouter();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [createBot] = useCreateBotMutation();
+    const [responseText, setResponseText] = useState('');
     const handleSubmit = () => {
         setLoading(true);
         const formData = new FormData();
@@ -17,6 +20,7 @@ const Form = () => {
         formData.append('BotPrompt', prompt);
         try {
             const response = createBot(formData).unwrap();
+            router.replace('/profile')
         } catch (error) {
             console.log(error)
         } finally {
@@ -40,6 +44,9 @@ const Form = () => {
                             placeholder="Enter Name"
                             placeholderTextColor="#bfbfbf"
                             textColor='white'
+                            cursorColor="#ffffff"
+                            underlineColorAndroid={'transparent'}
+                            underlineColor='transparent'
                         />
                     </View>
                     <View style={styles.inputContainer}>
@@ -52,11 +59,11 @@ const Form = () => {
                             style={[styles.input, styles.textArea]}
                             w="100%"
                             h={20}
-                            autoCompleteType={'off'}
-                            borderColor={'transparent'}
-                            selectionColor={'transparent'}
-                            focusOutlineColor={'transparent'}
-                            color={'white'}
+                            autoCompleteType="off"
+                            borderColor="transparent"
+                            focusOutlineColor="transparent"
+                            color="white"
+                            selectionColor="white"
                         />
                     </View>
                     <View style={styles.inputContainer}>
@@ -73,7 +80,7 @@ const Form = () => {
                             borderColor={'transparent'}
                             focusOutlineColor={'transparent'}
                             color={'white'}
-                            
+                            selectionColor="white"
                         />
                     </View>
                     <Button
@@ -86,6 +93,7 @@ const Form = () => {
                     >
                         {loading ? <ActivityIndicator color="#ffffff" /> : 'Continue'} { }
                     </Button>
+                    <Text style={styles.text}>{responseText}</Text>
                 </View>
             </View>
         </View>
@@ -108,8 +116,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     textArea: {
-        height: 100,    
-        textAlignVertical:'top',
+        height: 100,
+        textAlignVertical: 'top',
         paddingTop: 30,
     },
     form: {
@@ -121,6 +129,7 @@ const styles = StyleSheet.create({
         width: '100%',
         marginBottom: 10,
         backgroundColor: '#303136',
+        borderRadius: 5,
         height: 40,
         fontSize: 16,
         fontWeight: '400',

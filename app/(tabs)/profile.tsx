@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Platform } from 'react-native';
 import { useState } from 'react';
-import { ThemedView } from '@/components/ThemedView';
+import { View } from 'react-native';
 import UserProfile from '@/module/profile/Profile';
 import Modal from "react-native-modal";
 import ProfileModal from '@/components/modal/profile/profileModal';
@@ -21,7 +21,7 @@ export default function ProfileScreen() {
   const hideModal = () => setVisibleModal(false);
   
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <Modal isVisible={visibleModal}>
         <ProfileModal hideModal={hideModal} />
       </Modal>
@@ -32,7 +32,7 @@ export default function ProfileScreen() {
         <TelegramBotModal hideTelegramModal={hideTelegramModal} />
       </Modal>
       <UserProfile showModal={showModal} showEditModal={showEditModal} showTelegramModal={showTelegramModal}/>
-    </ThemedView>
+    </View>
   );
 }
 

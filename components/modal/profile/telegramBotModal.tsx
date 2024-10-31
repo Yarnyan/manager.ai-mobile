@@ -66,10 +66,9 @@ const TelegramBotModal = forwardRef(({ hideTelegramModal }: Props, ref) => {
                     reset();
                 }
             } else {
-                setMessage('');
-                const authBotResponse = await authBot(formData).unwrap();
                 setMessage('Success');
                 reset();
+                const authBotResponse = await authBot(formData).unwrap();
             }
         } catch (error: any) {
             if (error.originalStatus === 400) {
@@ -91,6 +90,7 @@ const TelegramBotModal = forwardRef(({ hideTelegramModal }: Props, ref) => {
     useEffect(() => {
         if (bot?.id) {
             getStatus(bot.id).then((res) => {
+                console.log(res, res.data)
                 setStatusBot(res.data.detail);
             });
         }
